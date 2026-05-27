@@ -41,12 +41,21 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 
+if (HTTPS_ENABLED) {
+  app.set('trust proxy', 1);
+}
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('SESSION_SECRET must be set when NODE_ENV=production');
+}
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+    secret: SESSION_SECRET || 'dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: 'lax' },
+    cookie: { httpOnly: true, sameSite: 'lax', secure: HTTPS_ENABLED },
   })
 );
 
