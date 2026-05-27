@@ -109,7 +109,7 @@ function makeKey(value) {
 }
 
 function blogTagOptions(posts) {
-  const tags = new Set(['Season 19', 'Season 18', 'Wither Storm']);
+  const tags = new Set();
   posts.forEach((post) => normalizeArray(post.tags).forEach((tag) => tags.add(tag)));
   return [...tags];
 }

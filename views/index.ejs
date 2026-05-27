@@ -56,8 +56,8 @@
   </section>
   <section class="post-panel">
     <% if (isAdmin) { %>
-      <button class="post-toggle" type="button" onclick="document.querySelector('.post-menu').showModal()">Post</button>
-      <dialog class="post-menu">
+      <button class="post-toggle" type="button" onclick="document.getElementById('new-post-dialog').showModal()">Post</button>
+      <dialog class="post-menu" id="new-post-dialog">
         <form method="post" action="/blog/post">
           <h3>Post</h3>
           <input name="title" placeholder="Title" required>
@@ -70,7 +70,7 @@
             <input name="customTags" placeholder="Custom tags, comma separated">
           </fieldset>
           <div class="dialog-actions">
-            <button type="button" onclick="document.querySelector('.post-menu').close()">Cancel</button>
+            <button type="button" onclick="document.getElementById('new-post-dialog').close()">Cancel</button>
             <button type="submit">Post</button>
           </div>
         </form>

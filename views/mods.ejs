@@ -10,12 +10,12 @@
   <span><%= mod.name %></span>
   <a href="<%= mod.link || '#' %>"><%= mod.link || 'No link' %></a>
   <div class="vote-controls">
-    <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="1"><button class="vote-button <%= mod.currentVote === 1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === 1 ? 'true' : 'false' %>" title="<%= mod.upvoters.length ? `Agrees: ${mod.upvoters.join(', ')}` : 'No agrees yet' %>" aria-label="Upvote <%= mod.name %>">▲</button></form>
+    <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="1"><button class="vote-button up <%= mod.currentVote === 1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === 1 ? 'true' : 'false' %>" title="<%= mod.upvoters.length ? `Agrees: ${mod.upvoters.join(', ')}` : 'No agrees yet' %>" aria-label="Upvote <%= mod.name %>">▲</button></form>
     <span><%= mod.score %></span>
-    <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="-1"><button class="vote-button <%= mod.currentVote === -1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === -1 ? 'true' : 'false' %>" title="<%= mod.downvoters.length ? `Disagrees: ${mod.downvoters.join(', ')}` : 'No disagrees yet' %>" aria-label="Downvote <%= mod.name %>">▼</button></form>
+    <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="-1"><button class="vote-button down <%= mod.currentVote === -1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === -1 ? 'true' : 'false' %>" title="<%= mod.downvoters.length ? `Disagrees: ${mod.downvoters.join(', ')}` : 'No disagrees yet' %>" aria-label="Downvote <%= mod.name %>">▼</button></form>
   </div>
   <% if (isAdmin) { %>
-    <form method="post" action="/mods/delete" class="delete-mod"><input type="hidden" name="modKey" value="<%= mod.key %>"><button type="submit" aria-label="Delete <%= mod.name %>">X</button></form>
+    <form method="post" action="/mods/delete" class="delete-mod" onsubmit="return confirm('Are you sure you want to delete <%= mod.name %>?');"><input type="hidden" name="modKey" value="<%= mod.key %>"><button type="submit" aria-label="Delete <%= mod.name %>">X</button></form>
   <% } %>
 </div>
 <% }) %>

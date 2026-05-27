@@ -9,17 +9,6 @@
       "key": "create",
       "name": "Create",
       "link": "https://www.curseforge.com/minecraft/mc-mods/create"
-    },
-    {
-      "key": "sodium",
-      "name": "Sodium",
-      "link": "https://modrinth.com/mod/sodium"
-    },
-    {
-      "key": "jenny_s_mod",
-      "name": "Jenny's Mod",
-      "link": "modrinth.com",
-      "suggestedBy": "RetiredLake"
     }
   ]
 }

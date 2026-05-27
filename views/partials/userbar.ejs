@@ -1,5 +1,6 @@
 <div class="userbox">
   <% if (currentUser) { %>
+    <img src="https://mc-heads.net/avatar/<%= currentUser.name %>/16" alt="<%= currentUser.name %>" style="width: 16px; height: 16px; border-radius: 2px; display: block;">
     <span><strong><%= currentUser.name %></strong> |</span>
     <form action="/logout" method="post">
       <button type="submit" class="signout">Sign Out</button>
