@@ -1,0 +1,8 @@
+<div class="userbox">
+  <% if (currentUser) { %>
+    <span><strong><%= currentUser.name %></strong></span>
+    <form action="/logout" method="post">
+      <button type="submit" class="signout">signout</button>
+    </form>
+  <% } %>
+</div>
