@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/css/styles.css"><title>Claims</title></head><body>
+<%- include('partials/header') %>
+<main class="page claims">
+<h1>Earth Server Claims</h1>
+<% if (notice) { %><p class="notice"><%= notice %></p><% } %>
+<div class="claims-wrap">
+<img src="/assets/world-map.png" alt="World map" class="world-map"/>
+<div class="claim-panel"><p>🏳 <%= country %></p><p>Claimed by: <%= claimedBy %></p><form method="post" action="/claims/claim"><input type="hidden" name="country" value="<%= country %>"><button type="submit">Claim</button></form></div>
+</div>
+</main>
+<%- include('partials/userbar') %>
+</body></html>

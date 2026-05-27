@@ -1,0 +1,6 @@
+body{font-family:Arial,sans-serif;background:#e6e6e6;margin:0;padding:24px}
+.site-header{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:10px}.logo{width:40px;height:24px;object-fit:cover}.nav-links a{margin-left:16px;color:#000;text-decoration:none}
+.page{margin-top:20px}.home{display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px}.claims-wrap{display:flex;gap:40px;align-items:flex-start}.world-map{max-width:700px;width:100%}.claim-panel button{width:220px;padding:10px;border-radius:18px;border:4px solid #000;background:#0a58ca;color:white;font-size:32px}
+.userbox{position:fixed;right:20px;bottom:16px;display:flex;gap:12px;align-items:center}.signout{border:1px solid #111;padding:6px 10px}
+.mods-table{max-width:700px}.mods-table .row,.mods-table .head{display:grid;grid-template-columns:2fr 1fr 1fr;margin:8px 0}.suggest-box{border:1px solid #0a0;padding:18px;border-radius:12px;display:grid;grid-template-columns:2fr 2fr 1fr;max-width:700px}
+.login-wrap{max-width:420px;margin:90px auto;background:#fff;padding:20px;border-radius:8px}.login-form{display:flex;gap:8px}.error{color:#b00}.notice{color:#333;font-weight:700}.vote-controls{display:flex;gap:8px;align-items:center}.vote-controls form{display:inline}

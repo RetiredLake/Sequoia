@@ -1,0 +1,12 @@
+<header class="site-header">
+  <div class="brand">
+    <img src="/assets/logo.png" alt="Sequoia SMP logo" class="logo" />
+    <span>Sequoia SMP</span>
+  </div>
+  <div class="play"><%= serverAddress %></div>
+  <nav class="nav-links">
+    <% nav.forEach((item) => { %>
+      <a href="<%= item.href %>"><%= item.label %></a>
+    <% }) %>
+  </nav>
+</header>
