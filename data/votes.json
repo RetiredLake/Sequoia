@@ -1,14 +1,20 @@
 {
   "mods": {
     "chat_heads": {
-      "total": 1,
+      "total": -1,
       "byUser": {
-        "b20ead8e-8f8b-4f79-bba5-56935a7b0ddf": 1
+        "b20ead8e-8f8b-4f79-bba5-56935a7b0ddf": -1
       }
     },
     "sodium": {
       "total": 0,
       "byUser": {}
+    },
+    "jenny_s_mod": {
+      "total": -1,
+      "byUser": {
+        "b20ead8e-8f8b-4f79-bba5-56935a7b0ddf": -1
+      }
     }
   },
   "blog": {}

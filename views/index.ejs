@@ -9,36 +9,45 @@
         <div class="post-head">
           <div>
             <h3><%= post.title %></h3>
-            <p class="meta"><%= new Date(post.createdAt).toLocaleDateString('en-US') %> | <%= post.author %></p>
+            <p class="meta">
+              <%= new Date(post.createdAt).toLocaleDateString('en-US') %> | <%= post.author %>
+              <% if (post.tags.length) { %>
+                | <% post.tags.forEach((tag, index) => { %><a href="/?tag=<%= encodeURIComponent(tag) %>" class="tag"><%= tag %></a><%= index < post.tags.length - 1 ? ', ' : '' %><% }) %>
+              <% } %>
+            </p>
           </div>
           <% if (isAdmin) { %>
-            <form method="post" action="/blog/delete" class="delete-post">
-              <input type="hidden" name="postId" value="<%= post.id %>">
-              <button type="submit" aria-label="Delete <%= post.title %>">X</button>
-            </form>
+            <div class="post-admin-actions">
+              <button class="edit-post-toggle" type="button" onclick="document.getElementById('edit-<%= post.id %>').showModal()">Edit</button>
+              <form method="post" action="/blog/delete" class="delete-post">
+                <input type="hidden" name="postId" value="<%= post.id %>">
+                <button type="submit" aria-label="Delete <%= post.title %>">X</button>
+              </form>
+            </div>
           <% } %>
         </div>
-        <% if (post.tags.length) { %>
-          <div class="post-tags">
-            <% post.tags.forEach((tag) => { %>
-              <a href="/?tag=<%= encodeURIComponent(tag) %>" class="tag"><%= tag %></a>
-            <% }) %>
-          </div>
-        <% } %>
         <p><%= post.message %></p>
-        <div class="post-votes">
-          <form method="post" action="/blog/vote">
-            <input type="hidden" name="postId" value="<%= post.id %>">
-            <input type="hidden" name="delta" value="1">
-            <button type="submit">Upvote</button>
-          </form>
-          <span><%= post.score %></span>
-          <form method="post" action="/blog/vote">
-            <input type="hidden" name="postId" value="<%= post.id %>">
-            <input type="hidden" name="delta" value="-1">
-            <button type="submit">Downvote</button>
-          </form>
-        </div>
+        <% if (isAdmin) { %>
+          <dialog class="post-menu" id="edit-<%= post.id %>">
+            <form method="post" action="/blog/edit">
+              <h3>Edit</h3>
+              <input type="hidden" name="postId" value="<%= post.id %>">
+              <input name="title" placeholder="Title" value="<%= post.title %>" required>
+              <textarea name="message" placeholder="Message" required><%= post.message %></textarea>
+              <fieldset class="tag-picker">
+                <legend>Tags</legend>
+                <% tags.forEach((tag) => { %>
+                  <label><input type="checkbox" name="tags" value="<%= tag %>" <%= post.tags.includes(tag) ? 'checked' : '' %>> <%= tag %></label>
+                <% }) %>
+                <input name="customTags" placeholder="Custom tags, comma separated">
+              </fieldset>
+              <div class="dialog-actions">
+                <button type="button" onclick="document.getElementById('edit-<%= post.id %>').close()">Cancel</button>
+                <button type="submit">Save</button>
+              </div>
+            </form>
+          </dialog>
+        <% } %>
       </article>
     <% }) %>
     <% if (!posts.length) { %>

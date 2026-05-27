@@ -14,6 +14,12 @@
       "key": "sodium",
       "name": "Sodium",
       "link": "https://modrinth.com/mod/sodium"
+    },
+    {
+      "key": "jenny_s_mod",
+      "name": "Jenny's Mod",
+      "link": "modrinth.com",
+      "suggestedBy": "RetiredLake"
     }
   ]
 }

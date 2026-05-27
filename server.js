@@ -14,6 +14,7 @@ const HTTPS_ENABLED = process.env.HTTPS === 'true';
 const dataDir = path.join(__dirname, 'data');
 const users = JSON.parse(fs.readFileSync(path.join(dataDir, 'users.json'), 'utf8'));
 const usersByName = new Map(users.map((u) => [u.name.toLowerCase(), u]));
+const userNamesByUuid = new Map(users.map((u) => [u.uuid, u.name]));
 
 const files = {
   votes: path.join(dataDir, 'votes.json'),
@@ -117,6 +118,28 @@ function normalizeBlogPost(post) {
   return { ...post, tags: normalizeArray(post.tags) };
 }
 
+function postTagsFromBody(body) {
+  const tags = normalizeArray(body.tags)
+    .map((tag) => String(tag).trim())
+    .filter(Boolean);
+  const customTags = String(body.customTags || '')
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+  return [...new Set([...tags, ...customTags])];
+}
+
+function isAllowedModLink(link) {
+  const normalized = String(link || '').toLowerCase();
+  return normalized.includes('modrinth') || normalized.includes('curseforge');
+}
+
+function voterNames(record, delta) {
+  return Object.entries(record?.byUser || {})
+    .filter(([, vote]) => Number(vote) === delta)
+    .map(([uuid]) => userNamesByUuid.get(uuid) || 'Unknown user');
+}
+
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.isAdmin = isAdmin(req.session.user);
@@ -156,8 +179,13 @@ app.post('/mods/vote', (req, res) => {
   votes.mods[modKey] ||= { total: 0, byUser: {} };
   const record = votes.mods[modKey];
   const prior = Number(record.byUser[req.session.user.uuid] || 0);
-  record.total += delta - prior;
-  record.byUser[req.session.user.uuid] = delta;
+  const nextVote = prior === delta ? 0 : delta;
+  record.total += nextVote - prior;
+  if (nextVote) {
+    record.byUser[req.session.user.uuid] = nextVote;
+  } else {
+    delete record.byUser[req.session.user.uuid];
+  }
   writeJson(files.votes, votes);
   res.redirect('/mods');
 });
@@ -172,6 +200,10 @@ app.post('/mods/suggest', (req, res) => {
   const key = makeKey(name);
   if (!name || !key) {
     req.session.notice = 'Add a mod name before suggesting it.';
+    return res.redirect('/mods');
+  }
+  if (!link || !isAllowedModLink(link)) {
+    req.session.notice = 'Add a Modrinth or CurseForge link before suggesting a mod.';
     return res.redirect('/mods');
   }
   const modData = readJson(files.mods);
@@ -210,13 +242,6 @@ app.post('/blog/post', (req, res) => {
     req.session.notice = 'Posts need both a title and a message.';
     return res.redirect('/');
   }
-  const tags = normalizeArray(req.body.tags)
-    .map((tag) => String(tag).trim())
-    .filter(Boolean);
-  const customTags = String(req.body.customTags || '')
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean);
   const blog = readJson(files.blog);
   blog.posts.unshift({
     id: `${Date.now()}-${makeKey(title)}`,
@@ -224,8 +249,34 @@ app.post('/blog/post', (req, res) => {
     message,
     author: req.session.user.name,
     createdAt: new Date().toISOString(),
-    tags: [...new Set([...tags, ...customTags])],
+    tags: postTagsFromBody(req.body),
   });
+  writeJson(files.blog, blog);
+  res.redirect('/');
+});
+
+app.post('/blog/edit', (req, res) => {
+  if (!isAdmin(req.session.user)) {
+    req.session.notice = 'Only moderators can edit posts.';
+    return res.redirect('/');
+  }
+  const postId = String(req.body.postId || '');
+  const title = String(req.body.title || '').trim();
+  const message = String(req.body.message || '').trim();
+  if (!title || !message) {
+    req.session.notice = 'Posts need both a title and a message.';
+    return res.redirect('/');
+  }
+  const blog = readJson(files.blog);
+  const post = blog.posts.find((entry) => entry.id === postId);
+  if (!post) {
+    req.session.notice = 'That post could not be found.';
+    return res.redirect('/');
+  }
+  post.title = title;
+  post.message = message;
+  post.tags = postTagsFromBody(req.body);
+  post.editedAt = new Date().toISOString();
   writeJson(files.blog, blog);
   res.redirect('/');
 });
@@ -289,7 +340,17 @@ app.get('/', (req, res) => {
 app.get('/mods', (req, res) => {
   const votes = readJson(files.votes);
   const modData = readJson(files.mods);
-  const mods = modData.suggestions.map((m) => ({ ...m, score: votes.mods[m.key]?.total || 0 }));
+  const currentUuid = req.session.user?.uuid;
+  const mods = modData.suggestions.map((m) => {
+    const record = votes.mods?.[m.key] || { total: 0, byUser: {} };
+    return {
+      ...m,
+      score: record.total || 0,
+      currentVote: Number(record.byUser?.[currentUuid] || 0),
+      upvoters: voterNames(record, 1),
+      downvoters: voterNames(record, -1),
+    };
+  });
   res.render('mods', { ...baseLocals, mods });
 });
 app.get('/claims', (req, res) => res.render('claims', { ...baseLocals }));
