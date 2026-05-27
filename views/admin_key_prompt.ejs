@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/css/styles.css"><title>Admin Key Required</title></head>
+<body>
+  <main class="login-wrap">
+    <h1>Security Verification</h1>
+    <p>Please enter the admin key for <strong><%= username %></strong> to continue.</p>
+    <form method="post" action="/login" class="login-form">
+      <input type="hidden" name="username" value="<%= username %>" />
+      <input type="password" name="adminKey" placeholder="Admin Key" required autofocus />
+      <button type="submit">Verify</button>
+    </form>
+    <% if (error) { %><p class="error"><%= error %></p><% } %>
+  </main>
+</body>
+</html>

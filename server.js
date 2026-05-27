@@ -12,6 +12,17 @@ const FORCE_HTTPS = process.env.FORCE_HTTPS === 'true';
 const HTTPS_ENABLED = process.env.HTTPS === 'true';
 
 const dataDir = path.join(__dirname, 'data');
+
+const adminKeyPath = path.join(__dirname, '.admin_key');
+if (!fs.existsSync(adminKeyPath)) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let key = '';
+  for (let i = 0; i < 32; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  fs.writeFileSync(adminKeyPath, key, 'utf8');
+}
+const adminKey = fs.readFileSync(adminKeyPath, 'utf8').trim();
 const users = JSON.parse(fs.readFileSync(path.join(dataDir, 'users.json'), 'utf8'));
 const usersByName = new Map(users.map((u) => [u.name.toLowerCase(), u]));
 const userNamesByUuid = new Map(users.map((u) => [u.uuid, u.name]));
@@ -171,13 +182,34 @@ app.use((req, res, next) => {
 
 app.get('/login', (req, res) => res.render('login', { ...baseLocals, error: null }));
 app.post('/login', (req, res) => {
-  const user = usersByName.get(String(req.body.username || '').trim().toLowerCase());
+  const username = String(req.body.username || '').trim();
+  const user = usersByName.get(username.toLowerCase());
   if (!user) {
     return res.status(401).render('login', {
       ...baseLocals,
       error: 'Unknown username. Please use a whitelisted username.',
     });
   }
+
+  const isUserAdmin = user.role === 'admin';
+  if (isUserAdmin) {
+    const providedKey = req.body.adminKey;
+    if (!providedKey) {
+      return res.render('admin_key_prompt', {
+        ...baseLocals,
+        username: user.name,
+        error: null,
+      });
+    }
+    if (providedKey !== adminKey) {
+      return res.status(401).render('admin_key_prompt', {
+        ...baseLocals,
+        username: user.name,
+        error: 'Invalid admin key.',
+      });
+    }
+  }
+
   req.session.user = { uuid: user.uuid, name: user.name, role: user.role || 'user' };
   res.redirect(req.query.next || '/');
 });
