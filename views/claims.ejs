@@ -3,10 +3,10 @@
 <main class="page claims">
 <h1>Earth Server Claims</h1>
 <% if (notice) { %><p class="notice"><%= notice %></p><% } %>
-<div class="claims-wrap">
-<img src="/assets/world-map.png" alt="World map" class="world-map"/>
-<div class="claim-panel"><p>🏳 <%= country %></p><p>Claimed by: <%= claimedBy %></p><form method="post" action="/claims/claim"><input type="hidden" name="country" value="<%= country %>"><button type="submit">Claim</button></form></div>
-</div>
+<section class="coming-soon">
+  <img src="/images/world-map.png" alt="World map" class="world-map"/>
+  <h2>Coming Soon</h2>
+</section>
 </main>
 <%- include('partials/userbar') %>
 </body></html>

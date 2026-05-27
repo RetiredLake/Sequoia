@@ -1,0 +1,19 @@
+{
+  "suggestions": [
+    {
+      "key": "chat_heads",
+      "name": "Chat Heads",
+      "link": "https://modrinth.com/mod/chat-heads"
+    },
+    {
+      "key": "create",
+      "name": "Create",
+      "link": "https://www.curseforge.com/minecraft/mc-mods/create"
+    },
+    {
+      "key": "sodium",
+      "name": "Sodium",
+      "link": "https://modrinth.com/mod/sodium"
+    }
+  ]
+}

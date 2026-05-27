@@ -1,9 +1,80 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/css/styles.css"><title>Home</title></head><body>
 <%- include('partials/header') %>
 <main class="page home">
-  <section><h2>Updates &amp; News</h2><h3>Wither Storm Mini Season</h3><p>5/26/2026 | Nick</p><p>Starting Friday, join us and beat the Wither Storm. We are buying time for the next vanilla season.</p></section>
-  <section><h3>Post</h3></section>
-  <aside><h3>Filter</h3><p>Season 19<br>Season 18<br>Wither Storm</p></aside>
+  <section class="blog-feed">
+    <h2>Updates &amp; News</h2>
+    <% if (notice) { %><p class="notice"><%= notice %></p><% } %>
+    <% posts.forEach((post) => { %>
+      <article class="blog-post">
+        <div class="post-head">
+          <div>
+            <h3><%= post.title %></h3>
+            <p class="meta"><%= new Date(post.createdAt).toLocaleDateString('en-US') %> | <%= post.author %></p>
+          </div>
+          <% if (isAdmin) { %>
+            <form method="post" action="/blog/delete" class="delete-post">
+              <input type="hidden" name="postId" value="<%= post.id %>">
+              <button type="submit" aria-label="Delete <%= post.title %>">X</button>
+            </form>
+          <% } %>
+        </div>
+        <% if (post.tags.length) { %>
+          <div class="post-tags">
+            <% post.tags.forEach((tag) => { %>
+              <a href="/?tag=<%= encodeURIComponent(tag) %>" class="tag"><%= tag %></a>
+            <% }) %>
+          </div>
+        <% } %>
+        <p><%= post.message %></p>
+        <div class="post-votes">
+          <form method="post" action="/blog/vote">
+            <input type="hidden" name="postId" value="<%= post.id %>">
+            <input type="hidden" name="delta" value="1">
+            <button type="submit">Upvote</button>
+          </form>
+          <span><%= post.score %></span>
+          <form method="post" action="/blog/vote">
+            <input type="hidden" name="postId" value="<%= post.id %>">
+            <input type="hidden" name="delta" value="-1">
+            <button type="submit">Downvote</button>
+          </form>
+        </div>
+      </article>
+    <% }) %>
+    <% if (!posts.length) { %>
+      <p class="notice">No posts match this filter.</p>
+    <% } %>
+  </section>
+  <section class="post-panel">
+    <% if (isAdmin) { %>
+      <button class="post-toggle" type="button" onclick="document.querySelector('.post-menu').showModal()">Post</button>
+      <dialog class="post-menu">
+        <form method="post" action="/blog/post">
+          <h3>Post</h3>
+          <input name="title" placeholder="Title" required>
+          <textarea name="message" placeholder="Message" required></textarea>
+          <fieldset class="tag-picker">
+            <legend>Tags</legend>
+            <% tags.forEach((tag) => { %>
+              <label><input type="checkbox" name="tags" value="<%= tag %>"> <%= tag %></label>
+            <% }) %>
+            <input name="customTags" placeholder="Custom tags, comma separated">
+          </fieldset>
+          <div class="dialog-actions">
+            <button type="button" onclick="document.querySelector('.post-menu').close()">Cancel</button>
+            <button type="submit">Post</button>
+          </div>
+        </form>
+      </dialog>
+    <% } %>
+  </section>
+  <aside class="filters">
+    <h3>Filter</h3>
+    <a href="/" class="<%= !selectedTag ? 'active' : '' %>">All</a>
+    <% tags.forEach((tag) => { %>
+      <a href="/?tag=<%= encodeURIComponent(tag) %>" class="<%= selectedTag === tag ? 'active' : '' %>"><%= tag %></a>
+    <% }) %>
+  </aside>
 </main>
 <%- include('partials/userbar') %>
 </body></html>

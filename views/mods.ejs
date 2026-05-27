@@ -4,21 +4,28 @@
 <h1>Mods</h1>
 <% if (notice) { %><p class="notice"><%= notice %></p><% } %>
 <div class="mods-table">
-<div class="head"><span>Mod Title</span><span>| Link</span><span>| Vote</span></div>
+<div class="head"><span>Mod Title</span><span>Link</span><span>Vote</span><span></span></div>
 <% mods.forEach((mod) => { %>
 <div class="row">
   <span><%= mod.name %></span>
-  <a href="#"><%= mod.link %></a>
+  <a href="<%= mod.link || '#' %>"><%= mod.link || 'No link' %></a>
   <div class="vote-controls">
     <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="1"><button>⬆</button></form>
     <span><%= mod.score %></span>
     <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="-1"><button>⬇</button></form>
   </div>
+  <% if (isAdmin) { %>
+    <form method="post" action="/mods/delete" class="delete-mod"><input type="hidden" name="modKey" value="<%= mod.key %>"><button type="submit" aria-label="Delete <%= mod.name %>">X</button></form>
+  <% } %>
 </div>
 <% }) %>
 </div>
-<p>Mods are ranked by votes. Mods can remove suggestions</p>
-<div class="suggest-box"><span>Mod Name</span><span>Link</span><span>✔ ❌</span></div>
+<p>Mods are ranked by votes.</p>
+<form method="post" action="/mods/suggest" class="suggest-box">
+  <input name="name" placeholder="Mod Name" required>
+  <input name="link" placeholder="Link">
+  <button type="submit">Suggest</button>
+</form>
 </main>
 <%- include('partials/userbar') %>
 </body></html>
