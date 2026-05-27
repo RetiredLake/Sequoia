@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/css/styles.css"><title>Settings</title></head><body>
+<%- include('partials/header') %>
+<main class="page settings">
+  <h1>Settings</h1>
+  <% if (notice) { %><p class="notice"><%= notice %></p><% } %>
+  <div class="settings-table">
+    <div class="head">
+      <span>Head</span>
+      <span>User</span>
+      <span>Admin</span>
+      <span>Manage</span>
+    </div>
+    <% usersList.forEach((u) => { %>
+      <div class="row">
+        <span><img src="https://mc-heads.net/avatar/<%= u.name %>/24" alt="" style="width: 24px; height: 24px; border-radius: 2px;"></span>
+        <span>
+          <span class="copyable-username" title="UUID: <%= u.uuid %>" onclick="navigator.clipboard.writeText('<%= u.name %>'); showCopiedIndicator(this)" style="cursor: pointer; text-decoration: underline dotted;"><%= u.name %></span>
+        </span>
+        <span>
+          <form method="post" action="/settings/toggle-admin" style="display:inline;">
+            <input type="hidden" name="uuid" value="<%= u.uuid %>">
+            <input type="checkbox" name="isAdmin" value="true" <%= u.role === 'admin' ? 'checked' : '' %> onchange="this.form.submit()">
+          </form>
+        </span>
+        <span>
+          <form method="post" action="/settings/delete-user" class="delete-member" onsubmit="return confirm('Are you sure you want to delete user <%= u.name %>?');" style="display:inline;">
+            <input type="hidden" name="uuid" value="<%= u.uuid %>">
+            <button type="submit" aria-label="Delete <%= u.name %>">X</button>
+          </form>
+        </span>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="add-user-panel" style="margin-top: 24px;">
+    <button class="post-toggle" type="button" onclick="document.getElementById('add-user-dialog').showModal()">Add User</button>
+    <dialog class="post-menu" id="add-user-dialog">
+      <form method="post" action="/settings/add-user">
+        <h3>Add User</h3>
+        <input name="username" placeholder="Username" required>
+        <input name="uuid" placeholder="UUID" required>
+        <label style="display: flex; gap: 8px; align-items: center; margin: 8px 0;">
+          <input type="checkbox" name="isManager" value="true"> Admin/Manager
+        </label>
+        <div class="dialog-actions">
+          <button type="button" onclick="document.getElementById('add-user-dialog').close()">Cancel</button>
+          <button type="submit">Add</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</main>
+
+<%- include('partials/userbar') %>
+
+<script>
+function showCopiedIndicator(element) {
+  const originalTitle = element.getAttribute('title');
+  element.setAttribute('title', 'Copied username!');
+  
+  const notification = document.createElement('span');
+  notification.innerText = ' (Copied!)';
+  notification.style.color = 'green';
+  notification.style.fontSize = '12px';
+  notification.style.marginLeft = '4px';
+  element.parentNode.appendChild(notification);
+  
+  setTimeout(() => {
+    element.setAttribute('title', originalTitle);
+    notification.remove();
+  }, 1500);
+}
+</script>
+</body></html>

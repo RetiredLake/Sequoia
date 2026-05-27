@@ -1,6 +1,17 @@
 {
   "posts": [
     {
+      "id": "1779914604423-test_post",
+      "title": "Test Post",
+      "message": "http://localhost:3000/mods ✝️",
+      "author": "RetiredLake",
+      "createdAt": "2026-05-27T20:43:24.423Z",
+      "tags": [
+        "Mods"
+      ],
+      "editedAt": "2026-05-27T20:44:27.379Z"
+    },
+    {
       "id": "wither-storm-mini-season",
       "title": "Wither Storm Season 19",
       "message": "Starting Friday, join us and beat the Wither Storm. We are buying time for the next vanilla season.",

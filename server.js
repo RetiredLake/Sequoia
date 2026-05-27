@@ -34,6 +34,15 @@ function readJson(filePath) {
 function writeJson(filePath, value) {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2));
 }
+function saveUsers(newUsers) {
+  fs.writeFileSync(path.join(dataDir, 'users.json'), JSON.stringify(newUsers, null, 2));
+  users.length = 0;
+  users.push(...newUsers);
+  usersByName.clear();
+  users.forEach((u) => usersByName.set(u.name.toLowerCase(), u));
+  userNamesByUuid.clear();
+  users.forEach((u) => userNamesByUuid.set(u.uuid, u.name));
+}
 
 ensureDataFile(files.votes, { mods: {} });
 ensureDataFile(files.claims, { countries: {} });
@@ -144,6 +153,18 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.isAdmin = isAdmin(req.session.user);
   res.locals.notice = req.session.notice || null;
+  res.locals.formatMessage = (message) => {
+    let escaped = String(message || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return escaped.replace(urlRegex, (url) => {
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    });
+  };
   req.session.notice = null;
   next();
 });
@@ -161,6 +182,77 @@ app.post('/login', (req, res) => {
   res.redirect(req.query.next || '/');
 });
 app.post('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
+
+app.get('/settings', (req, res) => {
+  if (!isAdmin(req.session.user)) {
+    req.session.notice = 'Only admins can access settings.';
+    return res.redirect('/');
+  }
+  res.render('settings', {
+    ...baseLocals,
+    usersList: users,
+  });
+});
+
+app.post('/settings/toggle-admin', (req, res) => {
+  if (!isAdmin(req.session.user)) {
+    req.session.notice = 'Only admins can access settings.';
+    return res.redirect('/');
+  }
+  const uuid = String(req.body.uuid || '');
+  const isAdminVal = req.body.isAdmin === 'true';
+  const updatedUsers = users.map((u) => {
+    if (u.uuid === uuid) {
+      const copy = { ...u };
+      if (isAdminVal) {
+        copy.role = 'admin';
+      } else {
+        delete copy.role;
+      }
+      return copy;
+    }
+    return u;
+  });
+  saveUsers(updatedUsers);
+  if (req.session.user && req.session.user.uuid === uuid) {
+    req.session.user.role = isAdminVal ? 'admin' : 'user';
+  }
+  res.redirect('/settings');
+});
+
+app.post('/settings/delete-user', (req, res) => {
+  if (!isAdmin(req.session.user)) {
+    req.session.notice = 'Only admins can access settings.';
+    return res.redirect('/');
+  }
+  const uuid = String(req.body.uuid || '');
+  const updatedUsers = users.filter((u) => u.uuid !== uuid);
+  saveUsers(updatedUsers);
+  res.redirect('/settings');
+});
+
+app.post('/settings/add-user', (req, res) => {
+  if (!isAdmin(req.session.user)) {
+    req.session.notice = 'Only admins can access settings.';
+    return res.redirect('/');
+  }
+  const username = String(req.body.username || '').trim();
+  const uuid = String(req.body.uuid || '').trim();
+  const isManager = req.body.isManager === 'true';
+
+  if (!username || !uuid) {
+    req.session.notice = 'Username and UUID are required.';
+    return res.redirect('/settings');
+  }
+
+  const newUser = { uuid, name: username };
+  if (isManager) {
+    newUser.role = 'admin';
+  }
+  const updatedUsers = [...users, newUser];
+  saveUsers(updatedUsers);
+  res.redirect('/settings');
+});
 
 app.post('/mods/vote', (req, res) => {
   if (!req.session.user) {
