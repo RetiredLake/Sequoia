@@ -1,15 +1,27 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/css/styles.css"><title>Login</title></head>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/css/styles.css">
+  <title>Login</title>
+</head>
+
 <body>
   <main class="login-wrap">
     <h1>Sequoia SMP</h1>
-    <p>Enter your username to continue.</p>
-    <form method="post" action="/login" class="login-form">
+    <p>Enter your Minecraft username to continue.</p>
+    <form method="post" action="/login<%= next ? '?next=' + encodeURIComponent(next) : '' %>" class="login-form">
       <input name="username" placeholder="Username" required />
       <button type="submit">Sign In</button>
     </form>
-    <% if (error) { %><p class="error"><%= error %></p><% } %>
+    <% if (error) { %>
+      <p class="error">
+        <%= error %>
+      </p>
+      <% } %>
   </main>
 </body>
+
 </html>

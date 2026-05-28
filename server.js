@@ -164,6 +164,13 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.isAdmin = isAdmin(req.session.user);
   res.locals.notice = req.session.notice || null;
+
+  let nextUrl = '/';
+  if (req.originalUrl && !req.originalUrl.startsWith('/login') && !req.originalUrl.startsWith('/logout')) {
+    nextUrl = req.originalUrl;
+  }
+  res.locals.currentUrl = nextUrl;
+
   res.locals.formatMessage = (message) => {
     let escaped = String(message || '')
       .replace(/&/g, '&amp;')
@@ -180,14 +187,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/login', (req, res) => res.render('login', { ...baseLocals, error: null }));
+app.get('/login', (req, res) => res.render('login', { ...baseLocals, error: null, next: req.query.next || '' }));
 app.post('/login', (req, res) => {
   const username = String(req.body.username || '').trim();
   const user = usersByName.get(username.toLowerCase());
   if (!user) {
     return res.status(401).render('login', {
       ...baseLocals,
-      error: 'Unknown username. Please use a whitelisted username.',
+      error: 'Unknown username. Use a whitelisted username or ask Nick for help.',
+      next: req.query.next || '',
     });
   }
 
@@ -199,6 +207,7 @@ app.post('/login', (req, res) => {
         ...baseLocals,
         username: user.name,
         error: null,
+        next: req.query.next || '',
       });
     }
     if (providedKey !== adminKey) {
@@ -206,6 +215,7 @@ app.post('/login', (req, res) => {
         ...baseLocals,
         username: user.name,
         error: 'Invalid admin key.',
+        next: req.query.next || '',
       });
     }
   }
@@ -288,8 +298,7 @@ app.post('/settings/add-user', (req, res) => {
 
 app.post('/mods/vote', (req, res) => {
   if (!req.session.user) {
-    req.session.notice = 'Sign in with a username before voting. Votes are tied to usernames.';
-    return res.redirect('/mods');
+    return res.redirect('/login?next=/mods');
   }
   const modKey = String(req.body.modKey || '');
   const delta = Number(req.body.delta || 0);
@@ -316,8 +325,7 @@ app.post('/mods/vote', (req, res) => {
 
 app.post('/mods/suggest', (req, res) => {
   if (!req.session.user) {
-    req.session.notice = 'Log in before suggesting a mod.';
-    return res.redirect('/mods');
+    return res.redirect('/login?next=/mods');
   }
   const name = String(req.body.name || '').trim();
   const link = String(req.body.link || '').trim();
@@ -407,8 +415,7 @@ app.post('/blog/edit', (req, res) => {
 
 app.post('/blog/vote', (req, res) => {
   if (!req.session.user) {
-    req.session.notice = 'Log in before voting on posts.';
-    return res.redirect('/');
+    return res.redirect(`/login?next=${encodeURIComponent(req.get('referer') || '/')}`);
   }
   const postId = String(req.body.postId || '');
   const delta = Number(req.body.delta || 0);

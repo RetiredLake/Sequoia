@@ -5,7 +5,7 @@
   <main class="login-wrap">
     <h1>Security Verification</h1>
     <p>Please enter the admin key for <strong><%= username %></strong> to continue.</p>
-    <form method="post" action="/login" class="login-form">
+    <form method="post" action="/login<%= next ? '?next=' + encodeURIComponent(next) : '' %>" class="login-form">
       <input type="hidden" name="username" value="<%= username %>" />
       <input type="password" name="adminKey" placeholder="Admin Key" required autofocus />
       <button type="submit">Verify</button>

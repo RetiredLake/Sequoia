@@ -3,16 +3,27 @@
 <main class="page mods">
 <h1>Mods</h1>
 <% if (notice) { %><p class="notice"><%= notice %></p><% } %>
-<div class="mods-table">
-<div class="head"><span>Mod Title</span><span>Link</span><span>Vote</span><span></span></div>
+<div class="mods-table <%= isAdmin ? 'admin-view' : 'user-view' %>">
+<div class="head">
+  <span>Mod Title</span>
+  <span>Link</span>
+  <span>Vote</span>
+  <% if (isAdmin) { %><span></span><% } %>
+</div>
 <% mods.forEach((mod) => { %>
 <div class="row">
   <span><%= mod.name %></span>
-  <a href="<%= mod.link || '#' %>"><%= mod.link || 'No link' %></a>
+  <a href="<%= mod.link || '#' %>" target="_blank" rel="noopener noreferrer"><%= mod.link || 'No link' %></a>
   <div class="vote-controls">
-    <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="1"><button class="vote-button up <%= mod.currentVote === 1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === 1 ? 'true' : 'false' %>" title="<%= mod.upvoters.length ? `Agrees: ${mod.upvoters.join(', ')}` : 'No agrees yet' %>" aria-label="Upvote <%= mod.name %>">▲</button></form>
-    <span><%= mod.score %></span>
-    <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="-1"><button class="vote-button down <%= mod.currentVote === -1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === -1 ? 'true' : 'false' %>" title="<%= mod.downvoters.length ? `Disagrees: ${mod.downvoters.join(', ')}` : 'No disagrees yet' %>" aria-label="Downvote <%= mod.name %>">▼</button></form>
+    <% if (currentUser) { %>
+      <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="1"><button class="vote-button up <%= mod.currentVote === 1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === 1 ? 'true' : 'false' %>" title="<%= mod.upvoters.length ? `Agrees: ${mod.upvoters.join(', ')}` : 'No agrees yet' %>" aria-label="Upvote <%= mod.name %>">▲</button></form>
+      <span><%= mod.score %></span>
+      <form method="post" action="/mods/vote"><input type="hidden" name="modKey" value="<%= mod.key %>"><input type="hidden" name="delta" value="-1"><button class="vote-button down <%= mod.currentVote === -1 ? 'active' : '' %>" aria-pressed="<%= mod.currentVote === -1 ? 'true' : 'false' %>" title="<%= mod.downvoters.length ? `Disagrees: ${mod.downvoters.join(', ')}` : 'No disagrees yet' %>" aria-label="Downvote <%= mod.name %>">▼</button></form>
+    <% } else { %>
+      <a href="/login?next=/mods" class="vote-button up" aria-label="Upvote <%= mod.name %>">▲</a>
+      <span><%= mod.score %></span>
+      <a href="/login?next=/mods" class="vote-button down" aria-label="Downvote <%= mod.name %>">▼</a>
+    <% } %>
   </div>
   <% if (isAdmin) { %>
     <form method="post" action="/mods/delete" class="delete-mod" onsubmit="return confirm('Are you sure you want to delete <%= mod.name %>?');"><input type="hidden" name="modKey" value="<%= mod.key %>"><button type="submit" aria-label="Delete <%= mod.name %>">X</button></form>
@@ -21,14 +32,23 @@
 <% }) %>
 </div>
 <p>Mods are ranked by votes.</p>
+<% if (currentUser) { %>
 <details class="suggest-panel">
-  <summary>Suggest</summary>
+  <summary>
+    <span class="suggest-text">Suggest</span>
+    <span class="close-text">Close</span>
+  </summary>
   <form method="post" action="/mods/suggest" class="suggest-box">
     <input name="name" placeholder="Mod Name" required>
     <input name="link" placeholder="Modrinth or CurseForge link" required>
     <button type="submit">Suggest</button>
   </form>
 </details>
+<% } else { %>
+<div class="suggest-panel">
+  <a href="/login?next=/mods" class="suggest-link">Suggest</a>
+</div>
+<% } %>
 </main>
 <%- include('partials/userbar') %>
 </body></html>
