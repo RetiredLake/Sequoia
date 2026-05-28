@@ -19,7 +19,7 @@
           <% if (isAdmin) { %>
             <div class="post-admin-actions">
               <button class="edit-post-toggle" type="button" onclick="document.getElementById('edit-<%= post.id %>').showModal()">Edit</button>
-              <form method="post" action="/blog/delete" class="delete-post">
+              <form method="post" action="/blog/delete" class="delete-post" onsubmit="return confirm('Are you sure you want to delete post &quot;<%= post.title %>&quot;?');">
                 <input type="hidden" name="postId" value="<%= post.id %>">
                 <button type="submit" aria-label="Delete <%= post.title %>">X</button>
               </form>
