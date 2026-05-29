@@ -1,17 +1,4 @@
 {
-  "mods": {
-    "chat_heads": {
-      "total": 1,
-      "byUser": {
-        "b20ead8e-8f8b-4f79-bba5-56935a7b0ddf": 1
-      }
-    },
-    "create": {
-      "total": -1,
-      "byUser": {
-        "b20ead8e-8f8b-4f79-bba5-56935a7b0ddf": -1
-      }
-    }
-  },
+  "mods": {},
   "blog": {}
 }

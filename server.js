@@ -23,7 +23,11 @@ if (!fs.existsSync(adminKeyPath)) {
   fs.writeFileSync(adminKeyPath, key, 'utf8');
 }
 const adminKey = fs.readFileSync(adminKeyPath, 'utf8').trim();
-const users = JSON.parse(fs.readFileSync(path.join(dataDir, 'users.json'), 'utf8'));
+const usersFilePath = path.join(dataDir, 'users.json');
+if (!fs.existsSync(usersFilePath)) {
+  fs.writeFileSync(usersFilePath, JSON.stringify([], null, 2));
+}
+const users = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
 const usersByName = new Map(users.map((u) => [u.name.toLowerCase(), u]));
 const userNamesByUuid = new Map(users.map((u) => [u.uuid, u.name]));
 
